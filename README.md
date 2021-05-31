@@ -1,6 +1,6 @@
 # My Invest
 
-## Aplicação web de gerenciamento finaceiro de investimento.
+## Aplicação web de gerenciamento financeiro de investimento.
 
 Projeto desenvolvido para a Fullstack Week, evento promovido pela Larissa Falcão
 
