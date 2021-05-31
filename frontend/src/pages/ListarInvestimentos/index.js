@@ -1,9 +1,10 @@
 import "antd/dist/antd.css";
 
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Table, Button, message, Layout, Menu } from 'antd';
+import InvestimentoService from "../../services/InvestimentoService";
 
 const { Header, Content, Footer } = Layout;
 const { Column } = Table;
@@ -12,7 +13,25 @@ export default function ListarInvestimentos() {
 
     const [investimentos, setInvestimentos] = useState([]);
 
+    useEffect(() => {
+        refreshInvestimentos();
+        return () => {
+
+        }
+    }, [])
+
+    async function refreshInvestimentos() {
+        InvestimentoService.retrieveAllInvestimentos()
+            .then(
+                response => {
+                    setInvestimentos(response.data)
+                }
+            )
+    }
+
     function remove(record) {
+
+        InvestimentoService.deleteInvestimento(record.codigo);
         message.success("Investimento removido com sucesso");
     }
     return (
@@ -43,20 +62,21 @@ export default function ListarInvestimentos() {
 
                         <Table dataSource={investimentos}>
                             <Column title="Código do ativo" dataIndex="codigoAtivo" key="codigoAtivo"></Column>
-                            <Column title="Valor" dataIndex="valor" key="valor"></Column>
+                            <Column title="Valor" dataIndex="valorCota" key="valorCota"></Column>
                             <Column title="Quantidade de cotas" dataIndex="quantidadeCotas" key="quantidadeCotas"></Column>
                             <Column title="Data da Compra" dataIndex="dataCompra" key="dataCompra" ></Column>
-                            <Column title="Remover" dataIndex="remover" key="atualizar">
+
+                            <Column title="Remover" key="atualizar"
                                 render={(text, record) => (
                                     <Button onClick={() => remove(record)} type="primary">
                                         Remover
                                     </Button>)}
-                            </Column>
+                            />
                         </Table>
 
                     </div>
                 </Content>
-                <Footer style={{ textAlign: "center" }}>My Invest &copy: 2021</Footer>
+                <Footer style={{ textAlign: "center" }}>My Invest &copy; 2021</Footer>
             </Layout>
         </div>
     );

@@ -1,13 +1,43 @@
+/* eslint-disable no-undef */
 
 import "antd/dist/antd.css";
 
 import { Link } from 'react-router-dom';
 
-import { Layout, Menu, Form, Button, DatePicker, Input, InputNumber, message } from 'antd';
+import { Layout, Menu, Form, Button, DatePicker, Input, InputNumber, message, Select } from 'antd';
+
+import InvestimentoService from "../../services/InvestimentoService";
+import CategoriaService from "../../services/CategoriaService";
+
+import { useEffect, useState } from "react";
+import { Option } from "antd/lib/mentions";
 
 const { Header, Content, Footer } = Layout;
 
 export default function CadastrarInvestimento() {
+
+    const [categorias, setCategorias] = useState([]);
+    const [categoria, setCategoria] = useState([]);
+
+    useEffect(() => {
+        refreshCategorias();
+        return () => {
+
+        }
+    }, [])
+
+    async function refreshCategorias() {
+        CategoriaService.retrieveAllCategorias()
+            .then(
+                response => {
+                    setCategorias(response.data)
+                }
+            )
+    }
+
+    function handleChangeCategoria(value) {
+        setCategoria(value);
+    }
 
     const layout = {
         labelCol: {
@@ -25,12 +55,16 @@ export default function CadastrarInvestimento() {
     };
 
     const onFinish = (values) => {
+        InvestimentoService.saveInvestimento(values);
         message.success("Investimento salvo com sucesso");
     }
+
     const onFinishFailed = (erroInfo) => {
         message.danger("Investimento salvo com sucesso");
         console.log("Failed: ", erroInfo);
     }
+
+
 
 
 
@@ -60,7 +94,7 @@ export default function CadastrarInvestimento() {
                     <div className="site-layout-content">
                         <h2>CADASTRAR INVESTIMENTO</h2>
 
-                        <Form {...layout} name="basic" initialValues={{ remember: true }} onFinish={onFinish} onFinishFailed={onFinishFailed}>
+                        <Form {...layout} name="basic" initialValues={{ remember: true }} onFinish={onFinish}>
                             <Form.Item label="Código do ativo" name="codigoAtivo"
                                 rules={[
                                     {
@@ -72,7 +106,7 @@ export default function CadastrarInvestimento() {
                                 <Input />
                             </Form.Item>
 
-                            <Form.Item label="Valor" name="Valor"
+                            <Form.Item label="Valor" name="valorCota"
                                 rules={[
                                     {
                                         required: true,
@@ -105,6 +139,25 @@ export default function CadastrarInvestimento() {
 
                             </Form.Item>
 
+                            <Form.Item label="Categoria" name="categoria"
+                                rules={[
+                                    {
+                                        required: false,
+                                        message: "Insira a categoria!",
+                                    }
+                                ]}>
+                                <Select onChange={handleChangeCategoria}>
+                                    {categorias.map((item, index) => {
+                                        return (
+                                            <Option key={item.codigo} value={index}>
+                                                {item.nome}
+                                            </Option>
+                                        )
+                                    })}
+                                </Select>
+
+                            </Form.Item>
+
                             <Form.Item {...tailLayout}>
                                 <Button type="primary" htmlType="submit">
                                     Salvar
@@ -114,7 +167,7 @@ export default function CadastrarInvestimento() {
 
                     </div>
                 </Content>
-                <Footer style={{ textAlign: "center" }}>My Invest &copy: 2021</Footer>
+                <Footer style={{ textAlign: "center" }}>My Invest &copy; 2021</Footer>
             </Layout>
         </div>
     );
